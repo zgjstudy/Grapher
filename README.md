@@ -1,2 +1,2 @@
-# Grapher
-A tool for converting mathematical functions into visual images
+# Visual3D
+Visualize f(x,y) in 3D with library like OpenGL, interactively
