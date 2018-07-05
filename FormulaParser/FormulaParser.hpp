@@ -5,9 +5,9 @@
 class Formula
 {
 public:
-	Formular();
-	Formula(std::string raw)
-	~Formular();
+	Formula();
+	Formula(std::string raw);
+	~Formula();
 
 
 private:
@@ -18,9 +18,9 @@ private:
 		double LRange, RRange;
 		std::string operation;
 		std::vector<Meta*> req;
-		bool isLeaf
+		bool isLeaf;
 
-		Meta(std::string operation,vector<Meta*> req,bool isLeaf = false);
+		Meta(std::string operation_,std::vector<Meta*> req_,bool isLeaf_);
 		~Meta();
 	};
 	class Variable
@@ -30,7 +30,7 @@ private:
 		double value;
 	};
 	Meta * root;
-	std::vector<Varoable> var;
+	std::vector<Variable> var;
 
 	void initialSet(std::string raw);
 	bool validate(std::string raw);
@@ -42,3 +42,9 @@ private:
 
 
 #endif //FORMULAPARSER_H
+
+/*
+log:
+need to add a preprocess to delete the surplus space
+'+' and variable and constant passed
+*/
