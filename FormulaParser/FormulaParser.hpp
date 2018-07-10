@@ -16,11 +16,12 @@ private:
 	public:
 		double LDomain, RDomain;
 		double LRange, RRange;
+		double constant_value;
 		std::string operation;
 		std::vector<Meta*> req;
 		bool isLeaf;
 
-		Meta(std::string operation_,std::vector<Meta*> req_,bool isLeaf_);
+		Meta(std::string operation_,std::vector<Meta*> req_,bool isLeaf_,double constant_value_);
 		~Meta();
 	};
 	class Variable
@@ -36,8 +37,8 @@ private:
 	bool validate(std::string raw);
 	Meta * transfer(std::string content);
 	Variable * get_var_by_name(std::string name);
-	bool is_function(std::string buffer);
-
+	bool is_function(std::string buffer,std::string &function_name);
+	int obtain_parameter_number(std::string function_name);
 };
 
 
@@ -46,5 +47,18 @@ private:
 /*
 log:
 need to add a preprocess to delete the surplus space
-'+' and variable and constant passed
+
+passed:
++ -
+* /
+variable 
+	'x'
+constant
+	2
+barckets
+	('x'+2)
+	('x'+'x')*2
+functions
+	power('x',2)
+	sin(ln('x'))
 */

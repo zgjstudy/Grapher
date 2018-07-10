@@ -1,11 +1,12 @@
 #include"FormulaParser.hpp"
 #include<bits/stdc++.h>
 
-Formula::Meta::Meta(std::string operation_,std::vector<Meta*> req_,bool isLeaf_ = false)
+Formula::Meta::Meta(std::string operation_,std::vector<Meta*> req_,bool isLeaf_ = false,double constant_value_ = 0)
 {
 	operation = operation_;
 	req = req_;
 	isLeaf = isLeaf_;
+	constant_value = constant_value_;
 }
 
 Formula::Formula()
@@ -41,15 +42,40 @@ bool Formula::validate(std::string raw)
 	return true;
 }
 
-bool Formula::is_function(std::string buffer)
+bool Formula::is_function(std::string content,std::string &buffer)
 {
-	if(
-	   buffer == "sin"
-	|| buffer == "cos"
-	|| buffer == "sec"
-	)
+	buffer.clear();
+	for (int i = 0; i < content.length(); ++i)
+	{
+		if (content[i] >= 'a' && content[i] <= 'z') buffer += content[i];
+		else break;
+	}
+	if (
+		buffer == "sin"
+		|| buffer == "cos"
+		|| buffer == "sec"
+		|| buffer == "csc"
+		|| buffer == "tan"
+		|| buffer == "cot"
+		|| buffer == "arcsin"
+		|| buffer == "arccos"
+		|| buffer == "arctan"
+		|| buffer == "ln"
+		|| buffer == "log"
+		|| buffer == "power"
+		)
 		return true;
 	return false;
+}
+
+int Formula::obtain_parameter_number(std::string function_name)
+{
+	if (
+		function_name == "log"
+		|| function_name == "power"
+		)
+		return 1;
+	else return 0;
 }
 
 void Formula::initialSet(std::string raw)
@@ -70,8 +96,7 @@ void Formula::initialSet(std::string raw)
 Formula::Meta * Formula::transfer(std::string content)
 {
 	int bracket_cnt =0;
-	std::string buffer;
-	for (int i = 0; i < content.length(); ++i)
+	/*for (int i = 0; i < content.length(); ++i)
 	{
 		if (content[i] == '(' && !i)
 		{
@@ -79,7 +104,18 @@ Formula::Meta * Formula::transfer(std::string content)
 			new_req.push_back(transfer(content.substr(1, content.length() - 2)));
 			return(new Meta("bracket", new_req));
 		}
+	}*/
+
+	//part of judge for barcket
+	if (content[0] == '(' && content[content.length()-1] == ')')
+	{
+		std::vector<Meta *> new_req;
+		new_req.push_back(transfer(content.substr(1, content.length() - 2)));
+		return(new Meta("bracket", new_req));
 	}
+	//end barcket
+
+	//part of judge for + and -
 	for (int i = 0; i < content.length(); ++i)
 	{
 		if ((content[i] == '+' || content[i] == '-')
@@ -96,9 +132,11 @@ Formula::Meta * Formula::transfer(std::string content)
 		{
 			if (content[i] == '(') ++bracket_cnt;
 			else if (content[i] == ')') --bracket_cnt;
-			else buffer += content[i];
 		}
 	}
+	//end + and -
+
+	//part of judge for * and /
 	for (int i = 0; i < content.length(); ++i)
 	{
 		if ((content[i] == '*' || content[i] == '/')
@@ -114,33 +152,47 @@ Formula::Meta * Formula::transfer(std::string content)
 		else
 		{
 			if (content[i] == '(') ++bracket_cnt;
-			else if (content[i] == ')') --bracket_cnt;
-			else buffer += content[i];
+			else if(content[i] == ')') --bracket_cnt;
 		}
 	}
-	for (int i = 0; i < content.length(); ++i)
+	//end * and /
+
+	//part of judge for function
+	std::string function_name;
+	if (is_function(content,function_name))
 	{
-		if (is_function(buffer))
+		int begin_position = 0;
+		std::vector<Meta*> new_req;
+		//int num_parameter = obtain_parameter_number(function_name);
+		
 		{
-			int begin_position = 0;
-			for (int j = 0; j < content.length(); ++j)
+			int begin_barcket = 0;
+			int k = 0;
+			for (begin_barcket = 0; begin_barcket < content.length(); ++begin_barcket)
+				if (content[begin_barcket] == '(')break;
+			for (int j = begin_barcket +1; j < content.length(); ++j)
 			{
-				if (content[j] == '(')
+				for(k=j+1;k<content.length();++k)
+				{
+					if (content[k] == ')' || content[k] == ',')break;
+				}
+				/*if (content[j] == '(')
 				{
 					if (!begin_position) begin_position = j; break;
+				}*/
+				if (k < content.length())
+				{
+					new_req.push_back(transfer(content.substr(j, k-1)));
 				}
+				j = k;
 			}
-			std::vector<Meta*> new_req;
-			new_req.push_back(transfer(content.substr(begin_position, content.length() - 1)));
-			return(new Meta(buffer, new_req));
+			//new_req.push_back(transfer(content.substr(begin_position, content.length() - 1)));
 		}
-		else
-		{
-			if (content[i] == '(') ++bracket_cnt;
-			else if (content[i] == ')') --bracket_cnt;
-			else buffer += content[i];
-		}
+		return(new Meta(function_name, new_req));
 	}
+	//end function
+
+	//part of judge for variable
 	for (int i = 0; i < content.length(); ++i)
 	{
 		if (content[i] == '\'')
@@ -158,26 +210,57 @@ Formula::Meta * Formula::transfer(std::string content)
 			}
 		}
 	}
+	//end variable
+
+	//part of judge for constant
+	int dot_cnt = 1;
+	std::string __tmp;
+	bool is_constant=true;
 	for (int i = 0; i < content.length(); ++i)
 	{
-		if (content[i] >= '0' && content[i] <= '9')
+		if (is_constant && (content[i] >= '0' && content[i] <= '9' || content[i] == '.' && dot_cnt))
 		{
-			std::string cst;
+			if (content[i] == '.') --dot_cnt;
+			__tmp += content[i];
+			/*std::string cst;
 			for (int j = i; j < content.length(); ++j)
 			{
 				if (content[j]<'0' || content[i] >'9')
 				{
-					std::string tmp = "constant"; tmp += ' '; tmp += cst;
+					std::string tmp = "constant";;
 					std::vector<Meta*> empty;
-					return (new Meta(tmp, empty, true));
+					char *_tmp = new char[cst.length() + 1];
+					for (int i = 0; i < cst.length(); ++i)
+						_tmp[i] = cst[i];
+					return (new Meta(tmp, empty, true, std::atof(_tmp)));
 				}
 				else cst += content[i];
 			}
-			std::string tmp = "constant"; tmp += ' '; tmp += cst;
+			char *_tmp = new char[cst.length() + 1];
+			for (int i = 0; i < cst.length(); ++i)
+				_tmp[i] = cst[i];
+			std::string tmp = "constant";
 			std::vector<Meta*> empty;
-			return (new Meta(tmp, empty, true));
+			//test
+			std::cout << std::atof(_tmp) << std::endl;
+
+			return (new Meta(tmp, empty, true, std::atof(_tmp)));*/
 		}
+		else is_constant = false;
 	}
+	if (__tmp.length())
+	{
+		std::string tmp = "constant";
+		std::vector<Meta*> empty;
+		char *_tmp = new char[content.length() + 1];
+		for (int i = 0; i < content.length(); ++i)
+			_tmp[i] = content[i];
+		//test
+		std::cout << std::atof(_tmp) << std::endl;
+		return (new Meta(tmp, empty, true, std::atof(_tmp)));
+	}
+	//end constant
+
 	return nullptr;
 }
 
