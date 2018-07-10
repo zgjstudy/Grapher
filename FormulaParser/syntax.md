@@ -19,15 +19,15 @@ These functions can be combinas to a composite function
 Besides, normal Logarithmic Function should be represented in this way
 >log('b','x')
 
+And power function such as x^5 should be
+>power('x',5)
+
 Constances directly be number
 >5
 
 >4+(9/3)
 
-Power funciton use operator "^"
->'x'^'y' &nbsp; 'z'^5
-
 Others supported operator listed as follow
 > *+*&nbsp;-&nbsp;*&nbsp;/&nbsp;()&nbsp;
 
-    *see order in https://en.wikipedia.org/wiki/Order_of_operations*
+    * see order in https://en.wikipedia.org/wiki/Order_of_operations *
