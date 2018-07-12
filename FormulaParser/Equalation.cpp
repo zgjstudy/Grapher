@@ -40,12 +40,33 @@ void Equalation::SetupBound(const std::vector<std::pair<double, double>> & bound
 
 std::vector<std::vector<double>> Equalation::GetPoints(double stride)
 {
+	std::thread **TArray = new std::thread*[thread_number];
+	std::vector<std::pair<double, double>> bound_temp = bound;
+	double bound_stride = (bound[0].second-bound[0].first)/thread_number;
+	bound_temp[0].second = bound_temp[0].first;
+	bound_temp[0].first -=bound_stride;
+	for(int i=0;i<thread_number;++i)
+	{
+		bound_temp[0].first+=bound_stride;
+		bound_temp[0].second+=bound_stride;
+		TArray[i] = new std::thread(scatter,this,bound_temp,stride);
+	}
+	for(int i=0;i<thread_number;++i)
+	{
+		TArray[i]->join();
+	}
 	//add mult-thread after finishing test
-	scatter(bound,stride);
+	//scatter(stride);
+	
+	//std::thread scatter1(scatter,std::ref(stride));
+	//scatter1.join();
+	
+	//std::thread thread1(thread_test,this);
+	//thread1.join();
 	return solution;
 }
 
-void Equalation::scatter(const std::vector<std::pair<double, double>> & bound,double stride)
+void Equalation::scatter(const std::vector<std::pair<double, double>> &bound,double stride)
 {
 	int variables_number = variables.size();
 	std::vector< std::pair<std::string, double>> instantaneous;
@@ -54,7 +75,7 @@ void Equalation::scatter(const std::vector<std::pair<double, double>> & bound,do
 	{
 		instantaneous.push_back(std::pair<std::string, double>(variables[i], bound[i].first));
 	}
-	while (!should_exit(bound, instantaneous))
+	while (!should_exit(bound,instantaneous))
 	{
 		increase_variables(instantaneous,stride,bound);
 		if (abs(left.get_value(instantaneous) - right.get_value(instantaneous)) <= stride)
@@ -69,7 +90,7 @@ void Equalation::scatter(const std::vector<std::pair<double, double>> & bound,do
 	}
 }
 
-bool Equalation::should_exit(const std::vector<std::pair<double, double>>& bound, const std::vector<std::pair<std::string, double>>& instantaneous)
+bool Equalation::should_exit(const std::vector<std::pair<double, double>> &bound,const std::vector<std::pair<std::string, double>>& instantaneous)
 {
 	return instantaneous[instantaneous.size() - 1].second > bound[bound.size() - 1].second;
 }

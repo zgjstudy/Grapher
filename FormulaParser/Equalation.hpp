@@ -17,10 +17,12 @@ private:
 	std::vector<std::pair<double, double>> bound;
 	Formula left, right;
 	std::vector<std::string> variables;
-	void scatter(const std::vector<std::pair<double, double>> & bound,double stride);
-	bool should_exit(const std::vector<std::pair<double, double>> & bound, const std::vector< std::pair<std::string, double>> &instantaneous);
+	void scatter(const std::vector<std::pair<double, double>> &bound,double stride);
+	bool should_exit(const std::vector<std::pair<double, double>> &bound,const std::vector< std::pair<std::string, double>> &instantaneous);
 	void increase_variables(std::vector< std::pair<std::string, double>> &instantaneous, const double stride, const std::vector<std::pair<double, double>> & bound);
 	std::vector < std::vector<double> > solution;
+
+	const int thread_number = 1024;
 };
 
 #endif //EQUALATION_H
