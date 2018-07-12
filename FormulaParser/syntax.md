@@ -7,11 +7,9 @@ Variables are surround by a pair of apostrophes
 > Variable X should be 'X'
 
 Transcendental Functions can be represent by their name, and follows a pair of brackets. Here are supports funcions
-> sin('x') &nbsp;cos('x') &nbsp; sec('x') &nbsp; csc('x') &nbsp; tan('x') &nbsp; cot('x')
+> sin('x') &nbsp;cos('x') &nbsp;tan('x') &nbsp;arcsin('x') &nbsp; arccos('x') &nbsp; arctan('x')
 
-> arcsin('x') &nbsp; arccos('x') &nbsp; arctan('x')
-
->ln('x')
+>ln('x') &nbsp;lg('x')
 
 These functions can be combinas to a composite function
 >sin(ln('x'))

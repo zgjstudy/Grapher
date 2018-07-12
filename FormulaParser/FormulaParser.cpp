@@ -11,9 +11,9 @@ Formula::Meta::Meta(std::string operation_,std::vector<Meta*> req_,bool isLeaf_ 
 
 Formula::Formula()
 {
-	std::string raw;
-	std::cin >> raw;
-	initialSet(raw);
+	//std::string raw;
+	//std::cin >> raw;
+	//initialSet(raw);
 }
 
 Formula::Formula(std::string raw)
@@ -53,15 +53,12 @@ bool Formula::is_function(std::string content,std::string &buffer)
 	if (
 		buffer == "sin"
 		|| buffer == "cos"
-		|| buffer == "sec"
-		|| buffer == "csc"
 		|| buffer == "tan"
-		|| buffer == "cot"
 		|| buffer == "arcsin"
 		|| buffer == "arccos"
 		|| buffer == "arctan"
 		|| buffer == "ln"
-		|| buffer == "log"
+		|| buffer == "lg"
 		|| buffer == "power"
 		)
 		return true;
@@ -71,7 +68,7 @@ bool Formula::is_function(std::string content,std::string &buffer)
 int Formula::obtain_parameter_number(std::string function_name)
 {
 	if (
-		function_name == "log"
+		function_name == ""
 		|| function_name == "power"
 		)
 		return 1;
@@ -84,7 +81,7 @@ void Formula::initialSet(std::string raw)
 	{
 		throw (" expression illegal");
 	}
-	std::string null = "null";
+	std::string null = "_NULL";
 	/*root->operation =null;
 	std::cout << "fine" << std::endl;
 	root->req.push_back(transfer(raw));*/
@@ -256,7 +253,7 @@ Formula::Meta * Formula::transfer(std::string content)
 		for (int i = 0; i < content.length(); ++i)
 			_tmp[i] = content[i];
 		//test
-		std::cout << std::atof(_tmp) << std::endl;
+		//std::cout << std::atof(_tmp) << std::endl;
 		return (new Meta(tmp, empty, true, std::atof(_tmp)));
 	}
 	//end constant
@@ -270,5 +267,112 @@ Formula::Variable * Formula::get_var_by_name(std::string name)
 	{
 		if (var[i].name == name)return (&var[i]);
 			return (nullptr);
+	}
+}
+
+/*double Formula::get_value(std::vector<std::pair<std::string, double>> UpperBound, std::vector<std::pair<std::string, double>> LowerBound, double stride)
+{
+
+}*/
+
+double Formula::get_value(const std::vector<std::pair<std::string, double>> & variable_value)
+{
+	/*
+	input:
+	a vector of each variable's value in form likes ( variable1 : value , variable2 : value ....)
+	output:
+	the calculate result of given certain variable value
+	*/
+	return root->calculate(variable_value);
+}
+
+double Formula::Meta::calculate(const std::vector<std::pair<std::string, double>> & variable_value)
+{//holy s**t
+	if (operation == "_NULL" || operation == "bracket")
+	{
+		return this->req[0]->calculate(variable_value);
+	}
+	else if (operation == "+")
+	{
+		return this->req[0]->calculate(variable_value) + this->req[1]->calculate(variable_value);
+	}
+	else if (operation == "-")
+	{
+		return this->req[0]->calculate(variable_value) - this->req[1]->calculate(variable_value);
+	}
+	else if (operation == "*")
+	{
+		return this->req[0]->calculate(variable_value) * this->req[1]->calculate(variable_value);
+	}
+	else if (operation == "/")
+	{
+		return this->req[0]->calculate(variable_value) / this->req[1]->calculate(variable_value);
+	}
+	else if (operation == "constant")
+	{
+		return this->constant_value;
+	}
+	else if (operation.length() > 8 && operation.substr(0,8) == "variable")
+	{
+		std::string variable_name = operation.substr(9, operation.length() - 1);
+		auto it = variable_value.begin();
+		for (; it != variable_value.end(); ++it)
+		{
+			if (it->first == variable_name)
+			{
+				return it->second;
+			}
+			//there will not have unexcepted case
+		}
+	}
+	/*
+	buffer == "sin"
+		|| buffer == "cos"
+		|| buffer == "tan"
+		|| buffer == "arcsin"
+		|| buffer == "arccos"
+		|| buffer == "arctan"
+		|| buffer == "ln"
+		|| buffer == "log"
+		|| buffer == "power"
+	*/
+	else//must be a funcion!
+	{//instead this of enum must
+		if (operation == "sin")
+		{
+			return sin(req[0]->calculate(variable_value));
+		}
+		else if (operation == "cos")
+		{
+			return cos(req[0]->calculate(variable_value));
+		}
+		else if (operation == "tan")
+		{
+			return tan(req[0]->calculate(variable_value));
+		}
+		else if (operation == "arcsin")
+		{
+			return asin(req[0]->calculate(variable_value));
+		}
+		else if (operation == "arccos")
+		{
+			return acos(req[0]->calculate(variable_value));
+		}
+		else if (operation == "arctan")
+		{
+			return atan(req[0]->calculate(variable_value));
+		}
+		else if (operation == "ln")
+		{
+			return log(req[0]->calculate(variable_value));
+		}
+		else if (operation == "lg")
+		{
+			return log10(req[0]->calculate(variable_value));
+		}
+		else if (operation == "power")
+		{
+			return pow(req[0]->calculate(variable_value),req[1]->calculate(variable_value));
+		}
 	}
 }
