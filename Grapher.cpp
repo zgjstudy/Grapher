@@ -102,10 +102,12 @@ void Grapher::standardize(std::vector<std::vector<double>>&vdd) {
 	
 	
 	double max = -99999;
-
+	
+	/*
 	for (int i = 0; i < vdd.size(); i++) {
 		std::cout << vdd[i][0] << std::endl;
 	}
+	*/
 
 	for (int i = 0; i < vdd.size();i++) {
 		if (max < vdd[i][0]) max = vdd[i][0];
