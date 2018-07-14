@@ -1,5 +1,6 @@
 #include"Equalation.hpp"
 #include<bits/stdc++.h>
+#include<thread>
 
 Equalation::Equalation()
 {
@@ -40,21 +41,24 @@ void Equalation::SetupBound(const std::vector<std::pair<double, double>> & bound
 
 std::vector<std::vector<double>> Equalation::GetPoints(double stride)
 {
-	std::thread **TArray = new std::thread*[thread_number];
+
+	std::vector<std::thread> th;
 	std::vector<std::pair<double, double>> bound_temp = bound;
-	double bound_stride = (bound[0].second-bound[0].first)/thread_number;
+	double bound_stride = (bound[0].second - bound[0].first) / thread_number;
 	bound_temp[0].second = bound_temp[0].first;
-	bound_temp[0].first -=bound_stride;
-	for(int i=0;i<thread_number;++i)
+	bound_temp[0].first -= bound_stride;
+	for (int i = 0; i<thread_number; ++i)
 	{
-		bound_temp[0].first+=bound_stride;
-		bound_temp[0].second+=bound_stride;
-		TArray[i] = new std::thread(scatter,this,bound_temp,stride);
+		bound_temp[0].first += bound_stride;
+		bound_temp[0].second += bound_stride;
+		th.push_back(std::thread(&Equalation::scatter,this,bound_temp, stride));
 	}
-	for(int i=0;i<thread_number;++i)
+
+	for (auto it = th.begin(); it != th.end(); ++it)
 	{
-		TArray[i]->join();
+		it->join();
 	}
+
 	//add mult-thread after finishing test
 	//scatter(stride);
 	
@@ -85,6 +89,8 @@ void Equalation::scatter(const std::vector<std::pair<double, double>> &bound,dou
 			{
 				equaled.push_back(it->second);
 			}
+
+			std::lock_guard<std::mutex> guard(vector_locker);
 			solution.push_back(equaled);
 		}
 	}
@@ -112,4 +118,9 @@ void Equalation::increase_variables(std::vector<std::pair<std::string, double>>&
 	}
 	instantaneous[instantaneous.size()-1].second = bound[bound.size()-1].second + 2 * stride;
 	return;
+}
+
+double Equalation::get_single_point(std::vector<std::pair<std::string, double>> var)
+{
+	return right.get_value(var);
 }

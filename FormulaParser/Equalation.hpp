@@ -2,6 +2,7 @@
 #define EQUALATION_H
 
 #include<bits/stdc++.h>
+#include<mutex>
 #include"FormulaParser.hpp"
 
 class Equalation
@@ -22,7 +23,8 @@ private:
 	void increase_variables(std::vector< std::pair<std::string, double>> &instantaneous, const double stride, const std::vector<std::pair<double, double>> & bound);
 	std::vector < std::vector<double> > solution;
 
-	const int thread_number = 1024;
+	const int thread_number = 2048;
+	std::mutex vector_locker;
 };
 
 #endif //EQUALATION_H
