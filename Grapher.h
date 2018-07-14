@@ -9,12 +9,13 @@
 #include <math.h>
 #include <iostream>
 #include <algorithm>
+#include "Equalation.hpp"
 
 bool comp(const std::vector<double>  &a, const  std::vector<double>  &b);
 
 class Grapher {
 public:
-	Grapher(std::vector<std::vector<double>>vdd);
+	Grapher(std::vector<std::vector<double>>vdd,std::string);
 	//Shaper(std::vector<std::vector<double>>vdd);
 	~Grapher();
 
@@ -26,7 +27,7 @@ private:
 	void initScene(int w, int h);
 	void  drawScene(GLFWwindow* window, std::vector<std::vector<double>>vdd);
 	//void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
-
+	Equalation Add;
 
 };
 
