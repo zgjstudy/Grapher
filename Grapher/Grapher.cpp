@@ -1,4 +1,4 @@
-
+/*version 1.0 */
 #include "Grapher.h"
 #include <algorithm>
 #define WINDOW_WIDTH  800
@@ -163,22 +163,6 @@ Grapher::~Grapher() {
 
 void Grapher::drawAxis(double xLdomin, double xRdomin, double yLdomin, double yRdomin) {
 
-	glLineWidth(1.0f);//设置线段宽度
-	glBegin(GL_LINES);
-
-	glColor3f(1.0, 0.0, 0.0);
-	glVertex2f(xLdomin, 0.0); //x - red
-	glVertex2f(xRdomin, 0.0);
-
-	glColor3f(0.0, 1.0, 0.0);
-	glVertex2f(0.0, yLdomin); //y - green
-	glVertex2f(0.0, yRdomin);
-
-	glColor3f(0.0, 0.0, 1.0);
-	glVertex3f(0.0, 0.0, -1.0); //z - blue
-	glVertex3f(0.0, 0.0, 1.0);
-
-	glEnd();
 
 
 
@@ -224,6 +208,24 @@ void Grapher::drawAxis(double xLdomin, double xRdomin, double yLdomin, double yR
 	glEnd();
 	glPopMatrix();
 
+	glLineWidth(1.0f);//设置线段宽度
+	glBegin(GL_LINES);
+
+	glColor3f(1.0, 0.0, 0.0);
+	glVertex3f(xLdomin, 0.0,0.0); //x - red
+	glVertex3f(xRdomin, 0.0,0.0);
+
+	glColor3f(0.0, 1.0, 0.0);
+	glVertex3f(0.0, yLdomin,0.0); //y - green
+	glVertex3f(0.0, yRdomin,0.0);
+
+	glColor3f(0.0, 0.0, 1.0);
+	glVertex3f(0.0, 0.0, -1.0); //z - blue
+	glVertex3f(0.0, 0.0, 1.0);
+
+	glEnd();
+	glPopMatrix();
+
 }
 
 void Grapher::drawTri3D(double xLdomin, double xRdomin, double yLdomin, double yRdomin) {
@@ -253,7 +255,7 @@ void Grapher::drawTri3D(double xLdomin, double xRdomin, double yLdomin, double y
 			double z = Add.get_single_point(A);
 			glVertex3f(i, j, z);
 			
-	  	 if(flag)std::cout << i << " " << j << " " << z << std::endl;
+	  //	 if(flag)std::cout << i << " " << j << " " << z << std::endl;
 			
 			A.clear();
 			B = { "x", i+0.1f };
