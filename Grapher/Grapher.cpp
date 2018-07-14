@@ -8,35 +8,33 @@ float  xrot = 0.0f, yrot = 0.0f, zrot = 0.0f;
 void drawExample();
 bool flag = true;
 bool roIt = false;
+GLfloat scal = 1.0;
 
 
 void  key_callback(GLFWwindow * window, int key, int scancode, int action, int mods)
 {
-	
+	  if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+		glfwSetWindowShouldClose(window, GL_TRUE);
+
 		if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 			glfwSetWindowShouldClose(window, GL_TRUE);
 		if (key == GLFW_KEY_LEFT && action == GLFW_PRESS)
 				yrot -= 10.0f;
-		/*if (key == GLFW_KEY_LEFT && action == GLFW_RELEASE)
-			yRot = 0.0f;*/
 		if (key == GLFW_KEY_RIGHT && action == GLFW_PRESS)
 			yrot +=10.0f;
 		if (key == GLFW_KEY_UP && action == GLFW_PRESS)
-			xrot +=10.0f;
+			xrot -=10.0f;
 		if (key == GLFW_KEY_DOWN && action == GLFW_PRESS)
-			xrot -= 10.0f;
-	/*	if (key == GLFW_KEY_DOWN && action == GLFW_RELEASE)
-			xRot = 0.0f;*/
+			xrot += 10.0f;
 		if (key == GLFW_KEY_SPACE && action == GLFW_PRESS)
 			roIt = true;
+		if (key == GLFW_KEY_P && action == GLFW_PRESS)
+			scal += 0.1f;
+		if (key == GLFW_KEY_O && action == GLFW_PRESS)
+			scal -= 0.1f;
 
-
-	/*if (xRot < 0) xRot = 355.0f;
-	if (xRot > 360.0f) xRot = 0.0f;
-
-	if (yRot < 0) yRot = 355.0f;
-	if (yRot > 360.0f) yRot = 0.0f;*/
 }
+
 
 
 bool comp(const std::vector<double>  &a, const  std::vector<double>  &b)
@@ -44,15 +42,45 @@ bool comp(const std::vector<double>  &a, const  std::vector<double>  &b)
 	return a[0] < b[0];
 }
 
+void Grapher::standardize(std::vector<std::vector<double>>&vdd) {
+
+	sort(vdd.begin(), vdd.end(), comp);
 
 
+	double max = -99999;
 
-Grapher::Grapher(std::vector<std::vector<double>>vdd,std::string input) {
-
-	/*先对数据进行标准化*/
-	standardize(vdd);
-	Add=Equalation(input);
+	//for (int i = 0; i < vdd.size(); i++) {
+	//std::cout << vdd[i][0] << " "<<vdd[i][i]<<std::endl;
+	//}
 	
+	for (int i = 0; i < vdd.size(); i++) {
+		if (max < vdd[i][0]) max = vdd[i][0];
+	}
+
+	for (int i = 0; i < vdd.size(); i++) {
+		vdd[i][0] /= max;
+	}
+	/*for (int i = 0; i < vdd.size(); i++) {
+	std::cout<<vdd[i][0]<< " " << vdd[i][1]<< " " << vdd[i][2]<<std::endl;
+	}*/
+	max = -9999;
+	for (int i = 0; i < vdd.size(); i++) {
+		if (max < vdd[i][1]) max = vdd[i][1];
+	}
+	for (int i = 0; i < vdd.size(); i++) {
+		vdd[i][1] /= max;
+	}
+
+}
+
+
+
+
+Grapher::Grapher(std::string input, int dimension, double xLdomin, double xRdomin, double yLdomin, double yRdomin) {
+
+	
+	Add=Equalation(input);
+
 	GLFWwindow* window;
 	/* 初始化glfw库 */
 	if (!glfwInit()) {
@@ -83,11 +111,12 @@ Grapher::Grapher(std::vector<std::vector<double>>vdd,std::string input) {
 	/* 循环，直到用户关闭窗口 */
 	while (!glfwWindowShouldClose(window))
 	{
-		/* 在这里做渲染 */
-		//glClear(GL_COLOR_BUFFER_BIT);
-
 		
-		drawScene(window, vdd);
+		
+		/* 在这里做渲染 */
+		drawScene(window,  dimension,  xLdomin,  xRdomin,  yLdomin, yRdomin);
+		
+	
 
 		/* 轮询事件 */
 		glfwPollEvents();
@@ -101,51 +130,49 @@ Grapher::~Grapher() {
 //to be finished
 }
 
-void Grapher::standardize(std::vector<std::vector<double>>&vdd) {
-	sort(vdd.begin(), vdd.end(), comp);
-	
-	
-	double max = -99999;
+//
+//void Grapher::standardize(std::vector<std::vector<double>>&vdd) {
+//	sort(vdd.begin(), vdd.end(), comp);
+//	
+//	
+//	double max = -99999;
+//
+//	/*for (int i = 0; i < vdd.size(); i++) {
+//		std::cout << vdd[i][0] << std::endl;
+//	}
+//    */
+//	for (int i = 0; i < vdd.size();i++) {
+//		if (max < vdd[i][0]) max = vdd[i][0];
+//	}
+//
+//	for (int i = 0; i < vdd.size(); i++) {
+//		vdd[i][0]/=max;
+//	}
+//	/*for (int i = 0; i < vdd.size(); i++) {
+//		std::cout<<vdd[i][0]<< " " << vdd[i][1]<< " " << vdd[i][2]<<std::endl;
+//	}*/
+//	max = -9999;
+//	for (int i = 0; i < vdd.size(); i++) {
+//		if (max < vdd[i][1]) max = vdd[i][1];
+//	}
+//	for (int i = 0; i < vdd.size(); i++) {
+//		vdd[i][1] /=max;
+//	}
+//
+//}
 
-	/*for (int i = 0; i < vdd.size(); i++) {
-		std::cout << vdd[i][0] << std::endl;
-	}
-    */
-	for (int i = 0; i < vdd.size();i++) {
-		if (max < vdd[i][0]) max = vdd[i][0];
-	}
-
-	for (int i = 0; i < vdd.size(); i++) {
-		vdd[i][0]/=max;
-	}
-	/*for (int i = 0; i < vdd.size(); i++) {
-		std::cout<<vdd[i][0]<< " " << vdd[i][1]<< " " << vdd[i][2]<<std::endl;
-	}*/
-	max = -9999;
-	for (int i = 0; i < vdd.size(); i++) {
-		if (max < vdd[i][1]) max = vdd[i][1];
-	}
-	for (int i = 0; i < vdd.size(); i++) {
-		vdd[i][1] /=max;
-	}
-
-
-
-
-}
-
-void Grapher::drawAxis() {
+void Grapher::drawAxis(double xLdomin, double xRdomin, double yLdomin, double yRdomin) {
 
 	glLineWidth(1.0f);//设置线段宽度
 	glBegin(GL_LINES);
 
 	glColor3f(1.0, 0.0, 0.0);
-	glVertex2f(-1.0, -0.0); //x - red
-	glVertex2f(1.0, 0.0);
+	glVertex2f(xLdomin, 0.0); //x - red
+	glVertex2f(xRdomin, 0.0);
 
 	glColor3f(0.0, 1.0, 0.0);
-	glVertex2f(0.0, -1.0); //y - green
-	glVertex2f(0.0, 1.0);
+	glVertex2f(0.0, yLdomin); //y - green
+	glVertex2f(0.0, yRdomin);
 
 	glColor3f(0.0, 0.0, 1.0);
 	glVertex3f(0.0, 0.0, -1.0); //z - blue
@@ -199,20 +226,23 @@ void Grapher::drawAxis() {
 
 }
 
-void Grapher::drawTri3D(std::vector<std::vector<double>> vdd) {
+void Grapher::drawTri3D(double xLdomin, double xRdomin, double yLdomin, double yRdomin) {
 
 	/*分割*/
 	
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-	glBegin(GL_TRIANGLE_STRIP);
-	GLfloat color1= 0.0;
-	GLfloat color2 = 0.0;
-
-
 	
-	for (float i = -1.0f; i<1.0f; i += 0.1f)
-		for (float j = -1.0f; j <1.1f; j += 0.1f) {
+	GLfloat color1= 0.6;
+	GLfloat color2 = 0.6;
 
+
+	bool mode = 1;
+	for (float i = xLdomin; i<xRdomin; i += 0.1f)
+	{
+		glBegin(GL_TRIANGLE_STRIP);
+	
+		for (float j = yLdomin; j < yRdomin; j += 0.1f) {
+			
 			glColor3f(0.0f, color1, color2);
 
 			std::vector<std::pair<std::string, double>> A;
@@ -223,7 +253,7 @@ void Grapher::drawTri3D(std::vector<std::vector<double>> vdd) {
 			double z = Add.get_single_point(A);
 			glVertex3f(i, j, z);
 			
-			if(flag)std::cout << i << " " << j << " " << z << std::endl;
+	  	 if(flag)std::cout << i << " " << j << " " << z << std::endl;
 			
 			A.clear();
 			B = { "x", i+0.1f };
@@ -233,40 +263,62 @@ void Grapher::drawTri3D(std::vector<std::vector<double>> vdd) {
 			z = Add.get_single_point(A);
 			glVertex3f(i+0.1f , j, z);
 
-			color1 += 0.05;
-			color2	+=0.01;
+			
+			if (mode) {
+				color1 += 0.1f;
+				color2 += 0.1f;
+				if (color1 > 1.0f)mode = 0;
+			}
+			else {
+				color1 -= 0.1f;
+				color2 -= 0.1f;
+				if (color1 <0.6)mode = 1;
+			}
 		}
+		glEnd();
+	}
 
 	flag = false;
 	
 	
-	glEnd();
+	
 	glPopMatrix();
 }
 
-inline void Grapher::drawFunction(std::vector<std::vector<double>> vdd) {
+inline void Grapher::drawFunction(int dimension, double xLdomin, double xRdomin, double yLdomin, double yRdomin) {
 
 
 
 	//定点坐标范围
-	if (vdd[0].size() == 2) {
-	
+	if (dimension == 2) {
+
 		glLineWidth(5.0f);//设置线段宽度
-		for (int i = 0; i < vdd.size() - 1; i++) {
+		for (float i = xLdomin; i < xRdomin; i+=0.01f) {
 			/*划线*/
+
+			std::vector<std::pair<std::string, double>> A;
+			std::pair < std::string, double >B = { "x", i };
+			A.push_back(B);
+			double y1 = Add.get_single_point(A);
+
+			A.clear();
+			B = { "x",i + 0.01f };
+			A.push_back(B);
+			double y2 = Add.get_single_point(A);
 
 			glBegin(GL_LINES);
 			glColor3f(1.0, 1.0, 1.0);
 
-			glVertex2f(vdd[i][0], vdd[i][1]);
-			glVertex2f(vdd[i + 1][0], vdd[i + 1][1]);
+			glVertex2f(i, y1);
+			glVertex2f(i+0.01f, y2);
 			glEnd();
 		}
-	}
-	else if (vdd[0].size() == 3) {
 
-		/*此处绘制三角剖分*/
-		drawTri3D(vdd);
+	}
+	else if (dimension == 3) {
+
+		/*此处绘制3D三角剖分*/
+		drawTri3D(xLdomin,xRdomin,yLdomin,yRdomin);
 
 	}
 	else {
@@ -293,7 +345,7 @@ void Grapher::initScene(int w, int h)
 
 //这里进行所有的绘图工作
 //需要补充旋转、放缩等callback操作
-inline void Grapher::drawScene(GLFWwindow * window, std::vector<std::vector<double>> vdd) {
+inline void Grapher::drawScene(GLFWwindow* window, int dimension, double xLdomin, double xRdomin, double yLdomin, double yRdomin) {
 
 	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -302,28 +354,55 @@ inline void Grapher::drawScene(GLFWwindow * window, std::vector<std::vector<doub
 	glClearColor(0.0, 0.0, 0.0, 0.0);					// Reset Color
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	glRotatef(xrot, 1.0f, 0.0f, 0.0f);
-	glRotatef(yrot, 0.0f, 1.0f, 0.0f);
-	glRotatef(zrot, 0.0f, 0.0f, 1.0f);
+
+	
+	
 
 	/*
 	进行渲染
 	*/
 	
-	drawAxis();
+	drawAxis(xLdomin, xRdomin, yLdomin, yRdomin);
+
+	/*旋转操作*/
+	glRotatef(xrot, 1.0f, 0.0f, 0.0f);
+	glRotatef(yrot, 0.0f, 1.0f, 0.0f);
+	glRotatef(zrot, 0.0f, 0.0f, 1.0f);
+	/*放缩操作*/
+	glScalef(scal, scal, scal);
+
+
+	drawFunction(dimension, xLdomin, xRdomin, yLdomin, yRdomin);
+	/*放缩操作*/
+	glScalef(scal, scal, scal);
+	scal = 1.0f;
+
+	/*旋转操作*/
+	glRotatef(xrot, 1.0f, 0.0f, 0.0f);
+	glRotatef(yrot, 0.0f, 1.0f, 0.0f);
+	glRotatef(zrot, 0.0f, 0.0f, 1.0f);
+	xrot = 0.0f;
+	yrot = 0.0f;
+
 	glPushMatrix();
-	drawFunction(vdd);
+	
 	//drawExample();
 
 	
 
 	/*
-	旋转
+	旋转参数
 	*/
 	if (roIt) {
 		xrot += 1.0f;
 		yrot += 1.0f;
 	}
+
+	/*
+	放缩参数
+	*/
+	//scal += 0.1f;
+
 
 	// 交换缓冲区 
 	glfwSwapBuffers(window);
