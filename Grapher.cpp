@@ -4,8 +4,11 @@
 #define WINDOW_WIDTH  800
 #define WINDOW_HEIGHT 600
 const GLfloat PI = 3.1415f;
-GLfloat xRot = 0.0f, yRot = 0.0f;
+float  xrot = 0.0f, yrot = 0.0f, zrot = 0.0f;
 void drawExample();
+bool flag = true;
+bool roIt = false;
+
 
 void  key_callback(GLFWwindow * window, int key, int scancode, int action, int mods)
 {
@@ -13,18 +16,19 @@ void  key_callback(GLFWwindow * window, int key, int scancode, int action, int m
 		if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 			glfwSetWindowShouldClose(window, GL_TRUE);
 		if (key == GLFW_KEY_LEFT && action == GLFW_PRESS)
-				yRot -= 0.1f;
-		if (key == GLFW_KEY_LEFT && action == GLFW_RELEASE)
-			yRot = 0.0f;
+				yrot -= 10.0f;
+		/*if (key == GLFW_KEY_LEFT && action == GLFW_RELEASE)
+			yRot = 0.0f;*/
 		if (key == GLFW_KEY_RIGHT && action == GLFW_PRESS)
-			yRot += 0.1f;
+			yrot +=10.0f;
 		if (key == GLFW_KEY_UP && action == GLFW_PRESS)
-			xRot += 0.1f;
+			xrot +=10.0f;
 		if (key == GLFW_KEY_DOWN && action == GLFW_PRESS)
-			xRot -= 0.1f;
-		if (key == GLFW_KEY_DOWN && action == GLFW_RELEASE)
-			xRot = 0.0f;
-	
+			xrot -= 10.0f;
+	/*	if (key == GLFW_KEY_DOWN && action == GLFW_RELEASE)
+			xRot = 0.0f;*/
+		if (key == GLFW_KEY_SPACE && action == GLFW_PRESS)
+			roIt = true;
 
 
 	/*if (xRot < 0) xRot = 355.0f;
@@ -43,12 +47,12 @@ bool comp(const std::vector<double>  &a, const  std::vector<double>  &b)
 
 
 
-Grapher::Grapher(std::vector<std::vector<double>>vdd) {
+Grapher::Grapher(std::vector<std::vector<double>>vdd,std::string input) {
 
 	/*先对数据进行标准化*/
 	standardize(vdd);
-
-
+	Add=Equalation(input);
+	
 	GLFWwindow* window;
 	/* 初始化glfw库 */
 	if (!glfwInit()) {
@@ -102,13 +106,11 @@ void Grapher::standardize(std::vector<std::vector<double>>&vdd) {
 	
 	
 	double max = -99999;
-	
-	/*
-	for (int i = 0; i < vdd.size(); i++) {
+
+	/*for (int i = 0; i < vdd.size(); i++) {
 		std::cout << vdd[i][0] << std::endl;
 	}
-	*/
-
+    */
 	for (int i = 0; i < vdd.size();i++) {
 		if (max < vdd[i][0]) max = vdd[i][0];
 	}
@@ -117,7 +119,7 @@ void Grapher::standardize(std::vector<std::vector<double>>&vdd) {
 		vdd[i][0]/=max;
 	}
 	/*for (int i = 0; i < vdd.size(); i++) {
-		std::cout<<vdd[i][0]<<std::endl;
+		std::cout<<vdd[i][0]<< " " << vdd[i][1]<< " " << vdd[i][2]<<std::endl;
 	}*/
 	max = -9999;
 	for (int i = 0; i < vdd.size(); i++) {
@@ -200,17 +202,44 @@ void Grapher::drawAxis() {
 void Grapher::drawTri3D(std::vector<std::vector<double>> vdd) {
 
 	/*分割*/
-	glColor4f(0.0, 1.0, 0.0, 0.000001);
+	
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 	glBegin(GL_TRIANGLE_STRIP);
-	GLfloat x = 0.0;
-	GLfloat y = 1.0;
+	GLfloat color1= 0.0;
+	GLfloat color2 = 0.0;
+
+
+	
 	for (float i = -1.0f; i<1.0f; i += 0.1f)
 		for (float j = -1.0f; j <1.1f; j += 0.1f) {
-			glVertex3f(i, j, i*j);
-			glVertex3f(i + 0.1f, j, (i + 0.1f)*j);
+
+			glColor3f(0.0f, color1, color2);
+
+			std::vector<std::pair<std::string, double>> A;
+			std::pair < std::string, double >B = {"x", i};
+			A.push_back(B);
+			std::pair < std::string, double >C = { "y", j };
+			A.push_back(C);
+			double z = Add.get_single_point(A);
+			glVertex3f(i, j, z);
+			
+			if(flag)std::cout << i << " " << j << " " << z << std::endl;
+			
+			A.clear();
+			B = { "x", i+0.1f };
+			A.push_back(B);
+			C = { "y", j };
+			A.push_back(C);
+			z = Add.get_single_point(A);
+			glVertex3f(i+0.1f , j, z);
+
+			color1 += 0.05;
+			color2	+=0.01;
 		}
 
+	flag = false;
+	
+	
 	glEnd();
 	glPopMatrix();
 }
@@ -266,18 +295,21 @@ void Grapher::initScene(int w, int h)
 //需要补充旋转、放缩等callback操作
 inline void Grapher::drawScene(GLFWwindow * window, std::vector<std::vector<double>> vdd) {
 
-
+	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();                                   // Reset The View 
 
 	glClearColor(0.0, 0.0, 0.0, 0.0);					// Reset Color
 	glClear(GL_COLOR_BUFFER_BIT);
 
+	glRotatef(xrot, 1.0f, 0.0f, 0.0f);
+	glRotatef(yrot, 0.0f, 1.0f, 0.0f);
+	glRotatef(zrot, 0.0f, 0.0f, 1.0f);
+
 	/*
 	进行渲染
 	*/
-	glRotatef(xRot, 1.0f, 0.0f, 0.0f);
-	glRotatef(yRot, 0.0f, 1.0f, 0.0f);
+	
 	drawAxis();
 	glPushMatrix();
 	drawFunction(vdd);
@@ -288,7 +320,10 @@ inline void Grapher::drawScene(GLFWwindow * window, std::vector<std::vector<doub
 	/*
 	旋转
 	*/
-	
+	if (roIt) {
+		xrot += 1.0f;
+		yrot += 1.0f;
+	}
 
 	// 交换缓冲区 
 	glfwSwapBuffers(window);
@@ -300,8 +335,8 @@ void drawExample() {
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	glPushMatrix();
-	glRotatef(xRot, 1.0f, 0.0f, 0.0f);
-	glRotatef(yRot, 0.0f, 1.0f, 0.0f);
+	glRotatef(xrot, 1.0f, 0.0f, 0.0f);
+	glRotatef(yrot, 0.0f, 1.0f, 0.0f);
 
 	glBegin(GL_TRIANGLE_FAN);
 	glVertex3f(0.0f, 0.0f, 75.0f);
