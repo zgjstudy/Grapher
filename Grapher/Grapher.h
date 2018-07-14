@@ -11,21 +11,22 @@
 #include <algorithm>
 #include "Equalation.hpp"
 
+
 bool comp(const std::vector<double>  &a, const  std::vector<double>  &b);
 
 class Grapher {
 public:
-	Grapher(std::vector<std::vector<double>>vdd,std::string);
+	Grapher(std::string input,int dimension, double xLdomin,double xRdomin, double yLdomin, double yRdomin);
 	//Shaper(std::vector<std::vector<double>>vdd);
 	~Grapher();
 
 private:
 	void standardize(std::vector<std::vector<double>>&vdd);
-	void drawAxis();
-	void drawTri3D(std::vector<std::vector<double>>vdd);
-	void drawFunction(std::vector<std::vector<double>>vdd);
+	void drawAxis(double xLdomin, double xRdomin, double yLdomin, double yRdomin);
+	void drawTri3D(double xLdomin, double xRdomin, double yLdomin, double yRdomin);
+	void drawFunction(int dimension, double xLdomin, double xRdomin, double yLdomin, double yRdomin);
 	void initScene(int w, int h);
-	void  drawScene(GLFWwindow* window, std::vector<std::vector<double>>vdd);
+	void  drawScene(GLFWwindow* window, int dimension, double xLdomin, double xRdomin, double yLdomin, double yRdomin);
 	//void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 	Equalation Add;
 
