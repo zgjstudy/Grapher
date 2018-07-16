@@ -1,4 +1,4 @@
-/*version 1.0 */
+//version 1.1
 #include "Grapher.h"
 #include <algorithm>
 #define WINDOW_WIDTH  800
@@ -215,9 +215,18 @@ void Grapher::drawAxis(double xLdomin, double xRdomin, double yLdomin, double yR
 	glVertex3f(xLdomin, 0.0,0.0); //x - red
 	glVertex3f(xRdomin, 0.0,0.0);
 
-	glColor3f(0.0, 1.0, 0.0);
-	glVertex3f(0.0, yLdomin,0.0); //y - green
-	glVertex3f(0.0, yRdomin,0.0);
+	if (yLdomin == 0 && yRdomin == 0) {
+		glColor3f(0.0, 1.0, 0.0);
+		glVertex3f(0.0, -1.0, 0.0); //y - green
+		glVertex3f(0.0, 1.0, 0.0);
+
+	}
+	else {
+		glColor3f(0.0, 1.0, 0.0);
+		glVertex3f(0.0, yLdomin, 0.0); //y - green
+		glVertex3f(0.0, yRdomin, 0.0);
+
+	}
 
 	glColor3f(0.0, 0.0, 1.0);
 	glVertex3f(0.0, 0.0, -1.0); //z - blue
